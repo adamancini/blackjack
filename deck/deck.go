@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"time"
 )
 
 // `iota` starts at the first element and assigns a value of 0 and
@@ -103,13 +102,22 @@ func absRank(c Card) int {
 	return int(c.Suit)*int(maxRank) + int(c.Rank)
 }
 
-func Shuffle(c []Card) []Card {
-	ret := make([]Card, len(c))
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i, j := range r.Perm(len(c)) {
-		ret[i] = c[j]
+func Shuffle(r rand.Source) func([]Card) []Card {
+	return func(c []Card) []Card {
+		r := rand.New(r)
+		ret := make([]Card, len(c))
+		perm := r.Perm(len(c))
+		for i, j := range r.Perm(len(c)) {
+			ret[i] = c[j]
+		}
+		return ret
 	}
-	return ret
+	// ret := make([]Card, len(c))
+	// r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// for i, j := range r.Perm(len(c)) {
+	// 	ret[i] = c[j]
+	// }
+	// return ret
 }
 
 func Filter(f func(c Card) bool) func([]Card) []Card {
