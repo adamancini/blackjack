@@ -19,6 +19,22 @@ import (
 
 type Hand []deck.Card
 
+type GameState struct {
+	Deck   []deck.Card
+	Turn   int
+	State  State
+	Player Hand // remember that a Hand is a slice in the implementation
+	Dealer Hand
+}
+
+type State int8
+
+const (
+	StatePlayerTurn State = iota
+	StateDealerTurn
+	StateHandOver
+)
+
 func (h Hand) String() string {
 	strs := make([]string, len(h))
 	for i := range h {
@@ -71,22 +87,6 @@ func min(a, b int) int {
 	return b
 }
 
-type GameState struct {
-	Deck   []deck.Card
-	Turn   int
-	State  State
-	Player Hand // remember that a Hand is a slice in the implementation
-	Dealer Hand
-}
-
-type State int8
-
-const (
-	StatePlayerTurn State = iota
-	StateDealerTurn
-	StateHandOver
-)
-
 // func Deal(gs GameState) GameState {
 // 	ret := clone(gs)
 // 	... ret
@@ -107,7 +107,7 @@ func (gs *GameState) CurrentPlayer() *Hand {
 func clone(gs GameState) GameState {
 	ret := GameState{
 		Deck:   make([]deck.Card, len(gs.Deck)),
-		Turn:   gs.Turn,
+		State:  gs.State,
 		Player: make(Hand, len(gs.Player)),
 		Dealer: make(Hand, len(gs.Dealer)),
 	}
@@ -125,8 +125,8 @@ func Shuffle(gs GameState) GameState {
 
 func Deal(gs GameState) GameState {
 	ret := clone(gs)
-	ret.Player = make(Hand, 0, 6)
-	ret.Dealer = make(Hand, 0, 6)
+	ret.Player = make(Hand, 0, 5)
+	ret.Dealer = make(Hand, 0, 5)
 	var card deck.Card
 	for i := 0; i < 2; i++ {
 		card, ret.Deck = deck.Draw(ret.Deck)
@@ -134,17 +134,18 @@ func Deal(gs GameState) GameState {
 		card, ret.Deck = deck.Draw(ret.Deck)
 		ret.Dealer = append(ret.Dealer, card)
 	}
-
+	ret.State = StatePlayerTurn
+	return ret
 }
 
 func Hit(gs GameState) GameState {
 	ret := clone(gs)
 	hand := ret.CurrentPlayer()
 	var card deck.Card
-	card, ret.Deck = draw(ret.Deck)
+	card, ret.Deck = deck.Draw(ret.Deck)
 	*hand = append(*hand, card)
 	if hand.Score() > 21 {
-		return Stand(gs)
+		return Stand(ret)
 	}
 	return ret
 }
