@@ -133,3 +133,7 @@ func Decks(n int) func([]Card) []Card {
 		return ret
 	}
 }
+
+func Draw(cards []Card) (Card, []Card) {
+	return cards[0], cards[1:]
+}

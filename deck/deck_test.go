@@ -65,3 +65,13 @@ func TestDeck(t *testing.T) {
 		t.Errorf("Expected %d cards, but got %d cards", 13*4*3, len(cards))
 	}
 }
+
+func TestDealerHitOnSoftSeventeen(t *testing.T) {
+	// when dealt an ace and a six, or combnination of ace and low cards that add up to seventeen
+	// the dealer should hit
+
+}
+
+func TestDealerBlackjack(t *testing.T) {}
+
+func TestPlayerBlackjack(t *testing.T) {}
